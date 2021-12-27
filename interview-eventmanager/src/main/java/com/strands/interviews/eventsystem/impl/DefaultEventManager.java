@@ -63,7 +63,12 @@ public class DefaultEventManager implements EventManager
         }
         
         for (int i = 0; i < classes.length; i++)
+        {   
+            if(!classes[i].getSuperclass().equals(new Object().getClass())){
+                addToListenerList(classes[i].getSuperclass(), listener);
+            }
             addToListenerList(classes[i], listener);
+        }
 
         listeners.put(listenerKey, listener);
     }
