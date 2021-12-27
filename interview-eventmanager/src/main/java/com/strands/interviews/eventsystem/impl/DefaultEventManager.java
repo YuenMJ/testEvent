@@ -18,6 +18,8 @@ public class DefaultEventManager implements EventManager
 {
     private Map listeners = new HashMap();
     private Map listenersByClass = new HashMap();
+    // wildCardListener - store special listener class
+    private List<Object> wildCardListener = new ArrayList();
 
     public void publishEvent(InterviewEvent event)
     {
@@ -32,7 +34,15 @@ public class DefaultEventManager implements EventManager
 
     private Collection calculateListeners(Class eventClass)
     {
-        return (Collection) listenersByClass.get(eventClass);
+        // availableListener is to combine list of wildCardListener and normal listener
+        List<Object> availableListener = new ArrayList();
+        if(!wildCardListener.isEmpty()){
+            availableListener.addAll(wildCardListener);
+        }
+        if(listenersByClass.containsKey(eventClass)){
+            availableListener.addAll((List) listenersByClass.get(eventClass));
+        }
+        return (Collection) availableListener;
     }
 
     public void registerListener(String listenerKey, InterviewEventListener listener)
@@ -48,6 +58,10 @@ public class DefaultEventManager implements EventManager
 
         Class[] classes = listener.getHandledEventClasses();
 
+        if(classes.length == 0){
+            wildCardListener.add(listener);
+        }
+        
         for (int i = 0; i < classes.length; i++)
             addToListenerList(classes[i], listener);
 
